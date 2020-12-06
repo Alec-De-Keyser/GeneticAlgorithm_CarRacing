@@ -13,7 +13,7 @@ class GeneticAlgorithm:
         self.num_hidden_nodes = num_hidden_nodes
         self.num_output_nodes = num_output_nodes
         self.num_weights = (self.num_input_nodes * self.num_hidden_nodes) \
-            + (self.num_hidden_nodes ** 2) * 2 \
+            + (self.num_hidden_nodes ** 2) \
             + (self.num_hidden_nodes * self.num_output_nodes)
         self.init_population()
 
@@ -21,6 +21,9 @@ class GeneticAlgorithm:
         for i in range(0, self.population_size):
             self.nets.append(NeuralNet(num_input_nodes=self.num_input_nodes, num_hidden_nodes=self.num_hidden_nodes,
                                        num_output_nodes=self.num_output_nodes))
+            random_weights = np.random.uniform(-1, 1, self.num_weights)
+            self.nets[i].update_weights(random_weights)
+
         return self.nets
 
     def calc_fitness(self, reward):
@@ -42,12 +45,16 @@ class GeneticAlgorithm:
     def crossover(self):
         net1 = self.nets[self.i1]
         net2 = self.nets[self.i2]
-        weights = np.array(self.num_weights)
-        for w in range(0, self.num_weights):
-            if w < self.num_weights / 5:
-                weights[w] = net1[w].weights
-            elif w < self.num_weights * 4 / 5:
-                weights[w] = net2[w].weights
+        weights1 = net1.get_flat_weights()
+        weights2 = net2.get_flat_weights()
+        new_weights = []
+        for w in range(self.num_weights):
+            if w < self.num_weights * 1 / 10:
+                new_weights.append(weights2[w])
+            elif w < self.num_weights * 9 / 10:
+                new_weights.append(weights1[w])
+            else:
+                new_weights.append(weights2[w])
+        for net in self.nets:
+            net.update_weights(new_weights)
 
-        for i in range(0, self.population_size):
-            self.nets[i].update_weights(num_weights=self.num_weights, weights=weights)
