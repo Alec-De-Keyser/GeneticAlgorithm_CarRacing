@@ -6,6 +6,7 @@ from NeuralNet import NeuralNet
 import numpy as np
 import torch
 import gym.envs.box2d.car_racing
+import csv
 
 
 ########################################################################################################################
@@ -23,11 +24,42 @@ def get_output(obs, net):
     return x
 
 
-if __name__ == '__main__':
+def write_best_to_file(genetic, generation):
+    best = genetic.nets[genetic.i1].get_flat_weights()
+    filename = 'weights' + str(generation) + '.csv'
+    file = open(filename, 'w')
+    writer = csv.writer(file)
+    for weight in best:
+        writer.writerow([weight])
 
-    ga = GeneticAlgorithm(10, 96*96*3, 50, 3)
-    env = gym.make('CarRacing-v0')
-    for gen in range(10):
+
+def read_file(net, generation):
+    filename = 'weights' + str(generation) + '.csv'
+    file = open(filename)
+    reader = csv.reader(file)
+    weights = []
+    for row in reader:
+        weights.append(float(row[0]))
+    net.update_weights(weights)
+
+
+if __name__ == '__main__':
+    for gen in [3, 10, 20, 23]:
+        best_net = NeuralNet(96*96*3, 50, 3)
+        read_file(best_net, gen)
+
+        env = gym.make('CarRacing-v0')
+        reward = float(0)
+        rewards = []
+        observation = env.reset()
+        done = False
+        while not done:
+            env.render()
+            action = get_output(observation, best_net)
+            observation, reward, done, _ = env.step(action)
+        env.close()
+    ga = GeneticAlgorithm(15, 96 * 96 * 3, 50, 3)
+    for gen in range(100):
         for i in range(ga.population_size):
             reward = float(0)
             rewards = []
@@ -49,3 +81,4 @@ if __name__ == '__main__':
         print("Mutating ...")
         ga.mutate()
         print("NEW GENERATION!")
+        write_best_to_file(ga, gen)

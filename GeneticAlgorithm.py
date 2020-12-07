@@ -85,11 +85,13 @@ class GeneticAlgorithm:
     #   For a random 10% of the population (on average), gets the flat weights and changes a random number of them,
     #       at random places to random values.
     #   in then calls update_weights with these new weights on every net that has changed.
+    #   TODO: more efficient
+    #   TODO: in function of the generation -> later generation, less mutations (same chance)
     ####################################################################################################################
     def mutate(self):
         for net in range(self.population_size):
             random_chance = np.random.uniform(0, 1)
-            if random_chance > 0.1: # 10% of the cases
+            if random_chance > 0.1:  # 10% of the cases
                 random_number = np.random.uniform(0, self.num_weights / 3)
                 weights = self.nets[net].get_flat_weights()
                 for _ in range(int(random_number)):
