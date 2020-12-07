@@ -47,7 +47,6 @@ if __name__ == '__main__':
     for gen in [3, 10, 20, 23]:
         best_net = NeuralNet(96*96*3, 50, 3)
         read_file(best_net, gen)
-
         env = gym.make('CarRacing-v0')
         reward = float(0)
         rewards = []
