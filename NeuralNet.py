@@ -62,16 +62,14 @@ class NeuralNet(nn.Module):
         for w in self.output.weight.data:
             for i in w:
                 weights.append(i.tolist())
-        flat_weights = []
-        for i in weights:
-            flat_weights.append(i)
-        return flat_weights
+        return weights
 
     ####################################################################################################################
     # UPDATE_WEIGHTS
-    #   Updates weights, based on the input of the genetic algorithm
+    #   Updates weights, based on the input.
     #   The weights should be decided by the optimisation algorithm.
-    #       In this case, a genetic algorithm is used
+    #       In this case, a genetic algorithm is used.
+    #   For loops because the weight.data variables need a single tensor of a particular shape.
     ####################################################################################################################
     def update_weights(self, weights):
         layer1_weights = self.num_input_nodes * self.num_hidden_nodes

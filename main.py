@@ -25,20 +25,27 @@ def get_output(obs, net):
 
 if __name__ == '__main__':
 
-    ga = GeneticAlgorithm(5, 96*96*3, 50, 3)
+    ga = GeneticAlgorithm(10, 96*96*3, 50, 3)
     env = gym.make('CarRacing-v0')
-    for i in range(ga.population_size):
-        reward = float(0)
-        rewards = []
-        observation = env.reset()
-        done = False
-        while not done:
-            # env.render()
-            action = get_output(observation, ga.nets[i])
-            observation, reward, done, _ = env.step(action)
-            rewards.append(reward)
-        total_reward = np.sum(rewards)
-        print(total_reward)
-        ga.nets[i].fitness = total_reward
-    ga.choose_parents()
-    ga.crossover()
+    for gen in range(10):
+        for i in range(ga.population_size):
+            reward = float(0)
+            rewards = []
+            observation = env.reset()
+            done = False
+            while not done:
+                # env.render()
+                action = get_output(observation, ga.nets[i])
+                observation, reward, done, _ = env.step(action)
+                rewards.append(reward)
+            total_reward = np.sum(rewards) + 100
+            print(total_reward)
+            ga.nets[i].fitness = total_reward
+            env.close()
+        env.close()
+        print("Processing generation ...")
+        ga.choose_parents()
+        ga.crossover()
+        print("Mutating ...")
+        ga.mutate()
+        print("NEW GENERATION!")
