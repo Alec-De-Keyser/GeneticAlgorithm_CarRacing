@@ -77,8 +77,9 @@ class GeneticAlgorithm:
                 new_weights.append(weights1[w])
             else:
                 new_weights.append(weights2[w])
-        for net in self.nets:
-            net.update_weights(new_weights)
+        for net in range(self.population_size):
+            if net != self.i1 and net != self.i2:
+                self.nets[net].update_weights(new_weights)
 
     ####################################################################################################################
     # MUTATE
@@ -91,8 +92,8 @@ class GeneticAlgorithm:
     def mutate(self):
         for net in range(self.population_size):
             random_chance = np.random.uniform(0, 1)
-            if random_chance > 0.1:  # 10% of the cases
-                random_number = np.random.uniform(0, self.num_weights / 3)
+            if net != self.i1 and net != self.i2 and random_chance > 0.1:  # 10% of the cases
+                random_number = np.random.uniform(0, self.num_weights / 1000)
                 weights = self.nets[net].get_flat_weights()
                 for _ in range(int(random_number)):
                     random_value = np.random.uniform(-10, 10)

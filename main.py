@@ -44,7 +44,7 @@ def read_file(net, generation):
 
 
 if __name__ == '__main__':
-    for gen in [3, 10, 20, 23]:
+    for gen in [3, 10, 20, 50, 60, 70, 80, 88]:
         best_net = NeuralNet(96*96*3, 50, 3)
         read_file(best_net, gen)
         env = gym.make('CarRacing-v0')
@@ -57,8 +57,8 @@ if __name__ == '__main__':
             action = get_output(observation, best_net)
             observation, reward, done, _ = env.step(action)
         env.close()
-    ga = GeneticAlgorithm(15, 96 * 96 * 3, 50, 3)
-    for gen in range(100):
+    ga = GeneticAlgorithm(10, 96 * 96 * 3, 50, 3)
+    for gen in range(200):
         for i in range(ga.population_size):
             reward = float(0)
             rewards = []
@@ -79,5 +79,5 @@ if __name__ == '__main__':
         ga.crossover()
         print("Mutating ...")
         ga.mutate()
-        print("NEW GENERATION!")
+        print("NEW GENERATION! Generation " + str(gen))
         write_best_to_file(ga, gen)
