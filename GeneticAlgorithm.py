@@ -62,24 +62,33 @@ class GeneticAlgorithm:
     #       The new weights are 2/10th of the second best and 8/10th of the best NeuralNet. This way, the best
     #       is rewarded more than the second best. The parts of the second best NeuralNet are put at the ends of the
     #       new weights.
-    #   TODO: implement more complicated version
+    #   TODO: implement more complicated version -> helft van populatie zus, andere helft zo
     ####################################################################################################################
     def crossover(self):
         net1 = self.nets[self.i1]
         net2 = self.nets[self.i2]
         weights1 = net1.get_flat_weights()
         weights2 = net2.get_flat_weights()
-        new_weights = []
-        for w in range(self.num_weights):
-            if w < self.num_weights * 1 / 10:
-                new_weights.append(weights2[w])
-            elif w < self.num_weights * 9 / 10:
-                new_weights.append(weights1[w])
-            else:
-                new_weights.append(weights2[w])
-        for net in range(self.population_size):
+        new_weights1 = []
+        new_weights2 = []
+        num_weights = self.num_weights
+        for w in range(num_weights):
+                if w < num_weights * 1 / 10:
+                    new_weights1.append(weights2[w])
+                    new_weights2.append(weights1[w])
+                elif w < self.num_weights * 9 / 10:
+                    new_weights1.append(weights1[w])
+                    new_weights2.append(weights2[w])
+                else:
+                    new_weights1.append(weights2[w])
+                    new_weights2.append(weights1[w])
+        population_size = self.population_size
+        for net in range(population_size):
             if net != self.i1 and net != self.i2:
-                self.nets[net].update_weights(new_weights)
+                if net < population_size / 2:
+                    self.nets[net].update_weights(new_weights1)
+                else:
+                    self.nets[net].update_weights(new_weights2)
 
     ####################################################################################################################
     # MUTATE
