@@ -26,10 +26,17 @@ class GeneticAlgorithm:
     #   Makes an initial population, with uniformly distributed random weights.
     ####################################################################################################################
     def init_population(self):
-        for i in range(0, self.population_size):
-            self.nets.append(NeuralNet(num_input_nodes=self.num_input_nodes, num_hidden_nodes=self.num_hidden_nodes,
-                                       num_output_nodes=self.num_output_nodes))
-            random_weights = np.random.uniform(-1, 1, self.num_weights)
+        get_random = np.random.uniform
+        population_size = self.population_size
+        num_input_nodes = self.num_input_nodes
+        num_hidden_nodes = self.num_hidden_nodes
+        num_output_nodes = self.num_output_nodes
+        num_weights = self.num_weights
+
+        for i in range(0, population_size):
+            self.nets.append(NeuralNet(num_input_nodes=num_input_nodes, num_hidden_nodes=num_hidden_nodes,
+                                       num_output_nodes=num_output_nodes))
+            random_weights = get_random(-1, 1, num_weights)
             self.nets[i].update_weights(random_weights)
 
         return self.nets
@@ -62,7 +69,8 @@ class GeneticAlgorithm:
     #       The new weights are 2/10th of the second best and 8/10th of the best NeuralNet. This way, the best
     #       is rewarded more than the second best. The parts of the second best NeuralNet are put at the ends of the
     #       new weights.
-    #   TODO: implement more complicated version -> helft van populatie zus, andere helft zo
+    #   TODO: implement more complicated version
+    #   TODO: keep complete gene of two best circulating
     ####################################################################################################################
     def crossover(self):
         net1 = self.nets[self.i1]
@@ -72,20 +80,26 @@ class GeneticAlgorithm:
         new_weights1 = []
         new_weights2 = []
         num_weights = self.num_weights
+
         for w in range(num_weights):
-                if w < num_weights * 1 / 10:
-                    new_weights1.append(weights2[w])
-                    new_weights2.append(weights1[w])
-                elif w < self.num_weights * 9 / 10:
-                    new_weights1.append(weights1[w])
-                    new_weights2.append(weights2[w])
-                else:
-                    new_weights1.append(weights2[w])
-                    new_weights2.append(weights1[w])
+            if w < num_weights * 1 / 10:
+                new_weights1.append(weights2[w])
+                new_weights2.append(weights1[w])
+            elif w < num_weights * 9 / 10:
+                new_weights1.append(weights1[w])
+                new_weights2.append(weights2[w])
+            else:
+                new_weights1.append(weights2[w])
+                new_weights2.append(weights1[w])
+
         population_size = self.population_size
+        half_pop = population_size / 2
+        i1 = self.i1
+        i2 = self.i2
+
         for net in range(population_size):
-            if net != self.i1 and net != self.i2:
-                if net < population_size / 2:
+            if net != i1 and net != i2:
+                if net < half_pop:
                     self.nets[net].update_weights(new_weights1)
                 else:
                     self.nets[net].update_weights(new_weights2)
@@ -94,20 +108,26 @@ class GeneticAlgorithm:
     # MUTATE
     #   For a random 10% of the population (on average), gets the flat weights and changes a random number of them,
     #       at random places to random values.
-    #   in then calls update_weights with these new weights on every net that has changed.
+    #   it then calls update_weights with these new weights on every net that has changed.
     #   TODO: more efficient
     #   TODO: in function of the generation -> later generation, less mutations (same chance)
     ####################################################################################################################
     def mutate(self):
-        for net in range(self.population_size):
-            random_chance = np.random.uniform(0, 1)
-            if net != self.i1 and net != self.i2 and random_chance > 0.1:  # 10% of the cases
-                random_number = np.random.uniform(0, self.num_weights / 1000)
+        population_size = self.population_size
+        i1 = self.i1
+        i2 = self.i2
+        num_weights = self.num_weights
+        get_random = np.random.uniform
+
+        for net in range(population_size):
+            random_chance = get_random(0, 1)
+            if net != i1 and net != i2 and random_chance > 0.2:  # 80% of the cases
+                #random_number = int(get_random(0, num_weights / 1000))
                 weights = self.nets[net].get_flat_weights()
-                for _ in range(int(random_number)):
-                    random_value = np.random.uniform(-10, 10)
-                    random_place = int(np.random.uniform(0, self.num_weights))
-                    weights[random_place] = random_value
+                #for _ in range(random_number):
+                random_value = get_random(-10, 10) #in for
+                random_place = int(get_random(0, num_weights)) #in for
+                weights[random_place] = random_value #in for
                 self.nets[net].update_weights(weights)
 
 

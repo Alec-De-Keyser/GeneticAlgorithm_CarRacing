@@ -53,13 +53,16 @@ class NeuralNet(nn.Module):
     ####################################################################################################################
     def get_flat_weights(self):
         weights = []
-        for w in self.hidden1.weight.data:
+        hidden1_data = self.hidden1.weight.data
+        hidden2_data = self.hidden2.weight.data
+        output_data = self.output.weight.data
+        for w in hidden1_data:
             for i in w:
                 weights.append(i.tolist())
-        for w in self.hidden2.weight.data:
+        for w in hidden2_data:
             for i in w:
                 weights.append(i.tolist())
-        for w in self.output.weight.data:
+        for w in output_data:
             for i in w:
                 weights.append(i.tolist())
         return weights
@@ -74,19 +77,24 @@ class NeuralNet(nn.Module):
     def update_weights(self, weights):
         layer1_weights = self.num_input_nodes * self.num_hidden_nodes
         layer2_weights = self.num_hidden_nodes ** 2
-        new_weights = []
-        for i in range(self.num_hidden_nodes):
-            new_weights.append(weights[i * self.num_input_nodes: i * self.num_input_nodes + self.num_input_nodes])
-        self.hidden1.weight.data = torch.Tensor(new_weights)
-        new_weights = []
-        for i in range(self.num_hidden_nodes):
-            new_weights.append(weights[i * self.num_hidden_nodes + layer1_weights:
-                                       i * self.num_hidden_nodes + layer1_weights + self.num_hidden_nodes])
-        self.hidden2.weight.data = torch.Tensor(new_weights)
-        new_weights = []
-        for i in range(self.num_output_nodes):
-            new_weights.append(weights[i * self.num_hidden_nodes + layer1_weights + layer2_weights:
-                               i * self.num_hidden_nodes + layer1_weights + layer2_weights + self.num_hidden_nodes])
-        self.output.weight.data = torch.Tensor(new_weights)
+        num_input_nodes = self.num_input_nodes
+        num_hidden_nodes = self.num_hidden_nodes
+        num_output_nodes = self.num_output_nodes
+        hidden1_weights = []
+        hidden2_weights = []
+        output_weights = []
+
+        for i in range(num_hidden_nodes):
+            hidden1_weights.append(weights[i * num_input_nodes: i * num_input_nodes + num_input_nodes])
+
+            hidden2_weights.append(weights[i * num_hidden_nodes + layer1_weights:
+                                           i * num_hidden_nodes + layer1_weights + num_hidden_nodes])
+        self.hidden1.weight.data = torch.Tensor(hidden1_weights)
+        self.hidden2.weight.data = torch.Tensor(hidden2_weights)
+
+        for i in range(num_output_nodes):
+            output_weights.append(weights[i * num_hidden_nodes + layer1_weights + layer2_weights:
+                                  i * num_hidden_nodes + layer1_weights + layer2_weights + num_hidden_nodes])
+        self.output.weight.data = torch.Tensor(output_weights)
 
 
